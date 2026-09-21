@@ -1,5 +1,27 @@
 #include "state_machine.h"
 
+static uint8_t CalculateDepth(MyState_t *state);
+
+void InitState(MyState_t *state_out, my_fun state_fun, MyState_t *parent_state)
+{
+    state_out->parent = parent_state;
+    state_out->depth = CalculateDepth(state_out);
+    state_out->fun = state_fun;
+}
+
+
+static uint8_t CalculateDepth(MyState_t *state)
+{
+    uint8_t ret_val = 0;
+    while(state->parent != NULL)
+    {
+        ret_val++;
+        state = state->parent;
+    }
+    return ret_val;
+}
+
+
 MyState_t *find_LCA(MyState_t *src_state, MyState_t *dest_state, MyState_t **EntryPath, uint8_t *entry_path_size, MyState_t **ExitPath, uint8_t *exit_path_size)
 {
     MyState_t *temp_src = src_state;

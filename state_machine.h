@@ -13,3 +13,5 @@ struct MyState_t
 };
 
 MyState_t *find_LCA(MyState_t *src_state, MyState_t *dest_state, MyState_t **EntryPath, uint8_t *entry_path_size, MyState_t **ExitPath, uint8_t *exit_path_size);
+void InitState(MyState_t *state_out, my_fun state_fun, MyState_t *parent_state);
+

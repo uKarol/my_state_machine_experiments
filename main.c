@@ -22,16 +22,38 @@
 // MyState_t State8 = {NULL, 8, 4, &State6};
 
 
-MyState_t S0 = {NULL, 0, 0, NULL};
-MyState_t S1 = {NULL, 1, 1, &S0};
-MyState_t S2 = {NULL, 2, 1, &S0};
-MyState_t S21 = {NULL, 21, 2, &S2};
-MyState_t S211 = {NULL, 211, 3, &S21};
-MyState_t S11 = {NULL, 11, 2, &S1};
+MyState_t S0;// = {NULL, 0, 0, NULL};
+MyState_t S1;// = {NULL, 1, 1, &S0};
+MyState_t S2;// = {NULL, 2, 1, &S0};
+MyState_t S21;// = {NULL, 21, 2, &S2};
+MyState_t S211;// = {NULL, 211, 3, &S21};
+MyState_t S11;// = {NULL, 11, 2, &S1};
 #define MAX_DEPTH 10
 
 int main()
 {
+
+    InitState(&S0, NULL, NULL);
+    InitState(&S1, NULL, &S0);
+    InitState(&S2, NULL, &S0);
+    InitState(&S21, NULL, &S2);
+    InitState(&S211, NULL, &S21);
+    InitState(&S11, NULL, &S1);
+
+    printf("depth S0 %d\n", S0.depth);
+    printf("depth S1 %d\n", S1.depth);
+    printf("depth S2 %d\n", S2.depth);
+    printf("depth S21 %d\n", S21.depth);
+    printf("depth S211 %d\n", S211.depth);
+    printf("depth S11 %d\n", S11.depth);
+
+    S0.idx = 0;
+    S1.idx = 1;
+    S2.idx = 2;
+    S21.idx = 21;
+    S211.idx = 211;
+    S11.idx = 11;
+
     uint8_t entry_path_size = 0;
     uint8_t exit_path_size = 0;
     MyState_t *entry_path[MAX_DEPTH];
