@@ -125,7 +125,7 @@ StateRetVal S211_State(MyStateMachine_t *ctx, FsmEvent_t *evt)
             ret_val = STATE_HANDLED;
         break;
         case MY_EVT3:
-            printf("S211 EVT3");
+            printf("S211 EVT3\n");
             ctx->next_state = &S11;
             ret_val = STATE_TRANSITION;
             break;
@@ -146,6 +146,13 @@ StateRetVal S11_State(MyStateMachine_t *ctx, FsmEvent_t *evt)
             printf("S11 ENTRY\n");
             ret_val = STATE_HANDLED;
         break;
+
+        case MY_EVT3:
+            printf("S11 EVT3\n");
+            ctx->next_state = &S211;
+            ret_val = STATE_TRANSITION;
+            break;
+
         case EXIT_EVT:
             printf("S11 EXIT\n");
             ret_val = STATE_HANDLED;
@@ -184,7 +191,10 @@ int main()
 
     temp_evt.user_event = MY_EVT1;
     StateMachine_ProcessEvent(&MyFSM, &temp_evt );
-
+    printf("TRASNSITION EXPERIMENT S211->S11\n");
+    temp_evt.user_event = MY_EVT3;
+    StateMachine_ProcessEvent(&MyFSM, &temp_evt );
+    printf("TRASNSITION EXPERIMENT S11->S211\n");
     temp_evt.user_event = MY_EVT3;
     StateMachine_ProcessEvent(&MyFSM, &temp_evt );
 

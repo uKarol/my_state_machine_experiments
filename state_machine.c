@@ -85,11 +85,12 @@ void StateMachine_ProcessEvent(MyStateMachine_t *ctx, FsmEvent_t *evt)
             temp_state->fun(ctx, &exit_evt);
             temp_state = temp_state->parent;
         }
-        for(uint8_t ctr = exit_path_size; ctr != 0; ctr--)
+        for(uint8_t ctr = entry_path_size-1; ctr != 0; ctr--)
         {
             entry_path[ctr]->fun(ctx, &entry_evt);
         }
         ctx->current_state = ctx->next_state;
+        ctx->current_state->fun(ctx, &entry_evt);
     }
 }
 
