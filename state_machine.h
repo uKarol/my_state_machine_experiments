@@ -1,3 +1,10 @@
+/**
+ * @file state_machine.c
+ * @brief header file contains declarations of state machine with hierarchy 
+ * @author Karol Ujda 
+ * https://github.com/uKarol
+ */
+
 #include <stdint.h>
 
 typedef enum 
