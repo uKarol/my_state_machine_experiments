@@ -26,6 +26,7 @@ enum
     MY_EVT1 = SPECIAL_EVT_END,
     MY_EVT2,
     MY_EVT3,
+    MY_EVT4,
 };
 
 MyState_t S0;// = {NULL, 0, 0, NULL};
@@ -129,6 +130,13 @@ StateRetVal S211_State(MyStateMachine_t *ctx, FsmEvent_t *evt)
             ctx->next_state = &S11;
             ret_val = STATE_TRANSITION;
             break;
+        
+        case MY_EVT4:
+            printf("S211 EVT4\n");
+            ctx->next_state = &S211;
+            ret_val = STATE_TRANSITION;
+            break;
+
         case EXIT_EVT:
             printf("S211 EXIT\n");
             ret_val = STATE_HANDLED;
@@ -196,6 +204,9 @@ int main()
     StateMachine_ProcessEvent(&MyFSM, &temp_evt );
     printf("TRASNSITION EXPERIMENT S11->S211\n");
     temp_evt.user_event = MY_EVT3;
+    StateMachine_ProcessEvent(&MyFSM, &temp_evt );
+    printf("SELF TRASNSITION EXPERIMENT S211->S211\n");
+    temp_evt.user_event = MY_EVT4;
     StateMachine_ProcessEvent(&MyFSM, &temp_evt );
 
     printf("end");
