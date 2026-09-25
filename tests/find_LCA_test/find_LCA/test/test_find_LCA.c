@@ -40,28 +40,33 @@ MyState_t B12;
 //substates of B12
 MyState_t B121;
 
+StateRetVal TestStateHandler(MyStateMachine_t *ctx,FsmEvent_t *evt)
+{
+    return STATE_HANDLED;
+}
+
 void helper_StateMachineSetup(void)
 {
-    InitState(&ROOT, NULL, NULL);
-    InitState(&A, NULL, &ROOT);
-    InitState(&B, NULL, &ROOT);
-    InitState(&C, NULL, &ROOT);
+    InitState(&ROOT, TestStateHandler, NULL);
+    InitState(&A, TestStateHandler, &ROOT);
+    InitState(&B, TestStateHandler, &ROOT);
+    InitState(&C, TestStateHandler, &ROOT);
     // substates of A
-    InitState(&A1, NULL, &A);
-    InitState(&A2, NULL, &A);
+    InitState(&A1, TestStateHandler, &A);
+    InitState(&A2, TestStateHandler, &A);
     // substates of A1
-    InitState(&A11, NULL, &A1);
+    InitState(&A11, TestStateHandler, &A1);
     // substates of A11
-    InitState(&A111, NULL, &A11);
+    InitState(&A111, TestStateHandler, &A11);
     
     // substates of B
-    InitState(&B1, NULL, &B);
+    InitState(&B1, TestStateHandler, &B);
     // substates of B1
-    InitState(&B11, NULL, &B1);
-    InitState(&B12, NULL, &B1);
+    InitState(&B11, TestStateHandler, &B1);
+    InitState(&B12, TestStateHandler, &B1);
 
     // substates of B1
-    InitState(&B121, NULL, &B12);
+    InitState(&B121, TestStateHandler, &B12);
 
 }
 

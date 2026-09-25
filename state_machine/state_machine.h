@@ -5,7 +5,12 @@
  * https://github.com/uKarol
  */
 
+ #ifndef _STATE_MACHINE_H_
+ #define _STATE_MACHINE_H_
+
 #include <stdint.h>
+
+#define MAX_DEPTH 10
 
 typedef enum 
 {
@@ -13,6 +18,12 @@ typedef enum
     STATE_IGNORED,
     STATE_TRANSITION,
 }StateRetVal;
+
+typedef enum
+{
+    STATE_MACHINE_OK,
+    STATE_MACHINE_ERROR,
+}StateMachineRet_t;
 
 enum
 {
@@ -51,6 +62,8 @@ struct MyStateMachine_t
 
 
 MyState_t *find_LCA(MyState_t *src_state, MyState_t *dest_state, MyState_t **EntryPath, uint8_t *entry_path_size, uint8_t *exit_path_size);
-void InitState(MyState_t *state_out, state_handler state_fun, MyState_t *parent_state);
+StateMachineRet_t InitState(MyState_t *state_out, state_handler state_fun, MyState_t *parent_state);
 void StateMachine_ProcessEvent(MyStateMachine_t *ctx, FsmEvent_t *evt);
-void StateMachineInitialize(MyStateMachine_t *ctx, MyState_t *initial_state);
+StateMachineRet_t StateMachineInitialize(MyStateMachine_t *ctx, MyState_t *initial_state);
+
+#endif

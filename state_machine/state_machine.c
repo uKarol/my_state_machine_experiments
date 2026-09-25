@@ -9,11 +9,20 @@
 
 static uint8_t CalculateDepth(MyState_t *state);
 
-void InitState(MyState_t *state_out, state_handler state_fun, MyState_t *parent_state)
+StateMachineRet_t InitState(MyState_t *state_out, state_handler state_fun, MyState_t *parent_state)
 {
-    state_out->parent = parent_state;
-    state_out->depth = CalculateDepth(state_out);
-    state_out->fun = state_fun;
+    StateMachineRet_t ret_val = STATE_MACHINE_ERROR;
+    if((state_out != NULL) && (state_fun != NULL))
+    {
+        state_out->parent = parent_state;
+        state_out->fun = state_fun;
+        state_out->depth = CalculateDepth(state_out);
+        if(state_out->depth < MAX_DEPTH)
+        {
+            ret_val = STATE_MACHINE_OK;
+        }
+    }
+    return ret_val;
 }
 
 static uint8_t CalculateDepth(MyState_t *state)
@@ -27,29 +36,34 @@ static uint8_t CalculateDepth(MyState_t *state)
     return ret_val;
 }
 
-#define MAX_DEPTH 10
-
-void StateMachineInitialize(MyStateMachine_t *ctx, MyState_t *initial_state)
+StateMachineRet_t StateMachineInitialize(MyStateMachine_t *ctx, MyState_t *initial_state)
 {
-    FsmEvent_t temp_evt = {ENTRY_EVT, NULL};
-    MyState_t *entry_path[MAX_DEPTH];
-    uint8_t arr_write_idx = 0;
-    MyState_t *temp_state = initial_state;
-    while(temp_state != NULL)
+    StateMachineRet_t ret_val = STATE_MACHINE_ERROR;
+    if((ctx != NULL) && (initial_state != NULL))
     {
-        entry_path[arr_write_idx] = temp_state;
-        arr_write_idx++;
-        temp_state = temp_state->parent;
+        FsmEvent_t temp_evt = {ENTRY_EVT, NULL};
+        MyState_t *entry_path[MAX_DEPTH];
+        uint8_t arr_write_idx = 0;
+        MyState_t *temp_state = initial_state;
+        while(temp_state != NULL)
+        {
+            entry_path[arr_write_idx] = temp_state;
+            arr_write_idx++;
+            temp_state = temp_state->parent;
+        }
+
+        for(uint8_t ctr = arr_write_idx-1; ctr != 0; ctr--)
+        {
+            if( entry_path[ctr]->fun(ctx, &temp_evt) != STATE_HANDLED)
+            {
+                return ret_val;
+            }
+        }
+        ctx->current_state = initial_state;
+
+        ctx->current_state->fun(ctx, &temp_evt);
     }
-
-    for(uint8_t ctr = arr_write_idx-1; ctr != 0; ctr--)
-    {
-        entry_path[ctr]->fun(ctx, &temp_evt);
-    }
-    ctx->current_state = initial_state;
-
-    ctx->current_state->fun(ctx, &temp_evt);
-
+    return ret_val;
 }
 
 void StateMachine_ProcessEvent(MyStateMachine_t *ctx, FsmEvent_t *evt)
@@ -109,7 +123,6 @@ MyState_t *find_LCA(MyState_t *src_state, MyState_t *dest_state, MyState_t **Ent
         {
             exit_path_idx++;
             temp_src = temp_src->parent; 
-
         }
 
     }
