@@ -107,7 +107,7 @@ void test_StateMachineInitializeTest(void)
     A111_State_ExpectAndReturn(&test_machine, NULL, STATE_HANDLED);
     A111_State_IgnoreArg_evt();
 
-    StateMachineInitialize(&test_machine, &A111);
+    TEST_ASSERT_EQUAL(STATE_MACHINE_OK, StateMachineInitialize(&test_machine, &A111));
 
     TEST_ASSERT_EQUAL_PTR(&A111, test_machine.current_state);
 }
@@ -145,10 +145,19 @@ void test_StateMachineInitializeTest_Enhanced(void)
     A111_State_ExpectAndReturn(&test_machine, NULL, STATE_HANDLED);
     A111_State_IgnoreArg_evt();
 
-    StateMachineInitialize(&test_machine, &A111);
+    TEST_ASSERT_EQUAL(STATE_MACHINE_OK, StateMachineInitialize(&test_machine, &A111));
 
     TEST_ASSERT_EQUAL_PTR(&A111, test_machine.current_state);
 }
 
+void test_StateMachineInitializeTest_Negative(void)
+{
+    MyStateMachine_t test_machine;
+    // init state NULL
+    TEST_ASSERT_EQUAL(STATE_MACHINE_ERROR, StateMachineInitialize(&test_machine, NULL));
+
+    // context NULL
+    TEST_ASSERT_EQUAL(STATE_MACHINE_ERROR, StateMachineInitialize(NULL, &A111));
+}
 
 #endif // TEST

@@ -55,14 +55,12 @@ StateMachineRet_t StateMachineInitialize(MyStateMachine_t *ctx, MyState_t *initi
 
         for(uint8_t ctr = arr_write_idx-1; ctr != 0; ctr--)
         {
-            if( entry_path[ctr]->fun(ctx, &temp_evt) != STATE_HANDLED)
-            {
-                return ret_val;
-            }
+            entry_path[ctr]->fun(ctx, &temp_evt);
         }
         ctx->current_state = initial_state;
 
         ctx->current_state->fun(ctx, &temp_evt);
+        ret_val = STATE_MACHINE_OK;
     }
     return ret_val;
 }
