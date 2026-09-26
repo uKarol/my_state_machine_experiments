@@ -6,6 +6,7 @@
  */
 
 #include "state_machine.h"
+#include <stdlib.h>
 
 static uint8_t CalculateDepth(MyState_t *state);
 

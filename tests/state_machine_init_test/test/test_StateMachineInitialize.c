@@ -41,35 +41,56 @@ MyState_t B12;
 //substates of B12
 MyState_t B121;
 
-void helper_StateMachineSetup(void)
+void test_StateInitialization(void)
 {
-    InitState(&ROOT, ROOT_State , NULL);
-    InitState(&A, A_State, &ROOT);
-    InitState(&B, B_State, &ROOT);
-    InitState(&C, C_State, &ROOT);
+    TEST_ASSERT_EQUAL(STATE_MACHINE_OK, InitState(&ROOT, ROOT_State , NULL));
+    TEST_ASSERT_EQUAL(STATE_MACHINE_OK, InitState(&A, A_State, &ROOT));
+    TEST_ASSERT_EQUAL(STATE_MACHINE_OK, InitState(&B, B_State, &ROOT));
+    TEST_ASSERT_EQUAL(STATE_MACHINE_OK, InitState(&C, C_State, &ROOT));
     // substates of A
-    InitState(&A1, A1_State, &A);
-    InitState(&A2, A2_State, &A);
+    TEST_ASSERT_EQUAL(STATE_MACHINE_OK, InitState(&A1, A1_State, &A));
+    TEST_ASSERT_EQUAL(STATE_MACHINE_OK, InitState(&A2, A2_State, &A));
     // substates of A1
-    InitState(&A11, A11_State, &A1);
+    TEST_ASSERT_EQUAL(STATE_MACHINE_OK, InitState(&A11, A11_State, &A1));
     // substates of A11
-    InitState(&A111, A111_State, &A11);
+    TEST_ASSERT_EQUAL(STATE_MACHINE_OK, InitState(&A111, A111_State, &A11));
     
     // substates of B
-    InitState(&B1, B1_State, &B);
+    TEST_ASSERT_EQUAL(STATE_MACHINE_OK, InitState(&B1, B1_State, &B));
     // substates of B1
-    InitState(&B11, B11_State, &B1);
-    InitState(&B12, B12_State, &B1);
+    TEST_ASSERT_EQUAL(STATE_MACHINE_OK, InitState(&B11, B11_State, &B1));
+    TEST_ASSERT_EQUAL(STATE_MACHINE_OK, InitState(&B12, B12_State, &B1));
 
     // substates of B1
-    InitState(&B121, B121_State, &B12);
+    TEST_ASSERT_EQUAL(STATE_MACHINE_OK, InitState(&B121, B121_State, &B12));
+}
+
+StateRetVal DummyStateHandler(MyStateMachine_t *ctx,FsmEvent_t *evt)
+{
+    return STATE_HANDLED;
+}
+
+void test_StateInitializationInvalid(void)
+{
+    MyState_t invalid[MAX_DEPTH + 1];
+
+    TEST_ASSERT_EQUAL(STATE_MACHINE_OK, InitState(&invalid[0], DummyStateHandler, NULL));
+    for(int i = 1; i<MAX_DEPTH; i++)
+    {
+        TEST_ASSERT_EQUAL(STATE_MACHINE_OK, InitState(&invalid[i], DummyStateHandler, &invalid[i-1]));
+    }
+    // exceed max depth
+    TEST_ASSERT_EQUAL(STATE_MACHINE_ERROR, InitState(&invalid[MAX_DEPTH], DummyStateHandler, &invalid[MAX_DEPTH-1]));
+    // null state
+    TEST_ASSERT_EQUAL(STATE_MACHINE_ERROR, InitState(NULL, DummyStateHandler, &invalid[MAX_DEPTH-1]));
+    // null state handler
+    TEST_ASSERT_EQUAL(STATE_MACHINE_ERROR, InitState(&invalid[MAX_DEPTH], NULL, &invalid[MAX_DEPTH-1]));
 
 }
 
 void test_StateMachineInitializeTest(void)
 {
     MyStateMachine_t test_machine;
-    helper_StateMachineSetup();
 
     ROOT_State_ExpectAndReturn(&test_machine, NULL, STATE_HANDLED);
     ROOT_State_IgnoreArg_evt();
@@ -102,7 +123,6 @@ StateRetVal EntryTestCallback(MyStateMachine_t *ctx,FsmEvent_t *evt, int cmock_n
 void test_StateMachineInitializeTest_Enhanced(void)
 {
     MyStateMachine_t test_machine;
-    helper_StateMachineSetup();
 
     ROOT_State_AddCallback(EntryTestCallback);
     A_State_AddCallback(EntryTestCallback);
