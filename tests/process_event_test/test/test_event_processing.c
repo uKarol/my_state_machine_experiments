@@ -172,6 +172,7 @@ StateRetVal Test03Callback_A111(MyStateMachine_t *ctx,FsmEvent_t *evt, int cmock
     else
     {
         TEST_ASSERT_EQUAL(EXIT_EVT, evt->user_event);
+        return STATE_HANDLED;
     }
 }
 
@@ -245,6 +246,7 @@ StateRetVal Test04Callback_B121(MyStateMachine_t *ctx,FsmEvent_t *evt, int cmock
     else
     {
         TEST_ASSERT_EQUAL(EXIT_EVT, evt->user_event);
+        return STATE_HANDLED;
     }
 }
 
@@ -259,6 +261,7 @@ StateRetVal Test04Callback_B12(MyStateMachine_t *ctx,FsmEvent_t *evt, int cmock_
     else
     {
         TEST_ASSERT_EQUAL(EXIT_EVT, evt->user_event);
+        return STATE_HANDLED;
     }
 }
 
@@ -500,6 +503,54 @@ void test_Test07_StateProcessing_IgnoredEvent(void)
     ROOT_State_IgnoreArg_evt();
 
     FsmEvent_t test_evt = {EVT2, NULL};
+    StateMachine_ProcessEvent(&test_machine, &test_evt);
+    TEST_ASSERT_EQUAL_PTR(&A2, test_machine.current_state);
+}
+
+StateRetVal Test08Callback_A2(MyStateMachine_t *ctx,FsmEvent_t *evt, int cmock_num_calls)
+{
+    if(cmock_num_calls == 0)
+    {
+        TEST_ASSERT_EQUAL(EVT1, evt->user_event);
+        ctx->next_state = &A2;
+        return STATE_TRANSITION;
+    }
+    else if(cmock_num_calls == 1)
+    {
+        TEST_ASSERT_EQUAL(EXIT_EVT, evt->user_event);
+        return STATE_HANDLED;
+    }
+    else
+    {
+        TEST_ASSERT_EQUAL(ENTRY_EVT, evt->user_event);
+        return STATE_HANDLED;
+    }
+}
+
+/*
+    Test08 - self transition from state A2 to A2
+    Expected sequence:
+    A2 - returns state transition
+    Exit sequence:
+    A2
+    Entry sequence:
+    A2
+    state machine in A2 state
+*/
+void test_Test08_StateProcessing_SelfTransition_A2_to_A2(void)
+{
+    A2_State_AddCallback(Test08Callback_A2);
+    A2_State_ExpectAndReturn(&test_machine, NULL, STATE_TRANSITION);
+    A2_State_IgnoreArg_evt();
+
+    A2_State_ExpectAndReturn(&test_machine, NULL, STATE_HANDLED);
+    A2_State_IgnoreArg_evt();
+
+    A2_State_ExpectAndReturn(&test_machine, NULL, STATE_HANDLED);
+    A2_State_IgnoreArg_evt();
+
+
+    FsmEvent_t test_evt = {EVT1, NULL};
     StateMachine_ProcessEvent(&test_machine, &test_evt);
     TEST_ASSERT_EQUAL_PTR(&A2, test_machine.current_state);
 }

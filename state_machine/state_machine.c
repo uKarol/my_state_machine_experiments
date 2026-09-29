@@ -73,6 +73,7 @@ void StateMachine_ProcessEvent(MyStateMachine_t *ctx, FsmEvent_t *evt)
     MyState_t *entry_path[MAX_DEPTH];
     uint8_t entry_path_size = 0;
     uint8_t exit_path_size = 0;
+    uint8_t depth_diff = 0;
 
     MyState_t *temp_state = ctx->current_state;
 
@@ -88,21 +89,30 @@ void StateMachine_ProcessEvent(MyStateMachine_t *ctx, FsmEvent_t *evt)
 
     if(state_ret == STATE_TRANSITION)
     {
-        find_LCA(temp_state, ctx->next_state, &entry_path, &entry_path_size, &exit_path_size);
-        uint8_t depth_diff = ctx->current_state->depth - temp_state->depth;
-        temp_state = ctx->current_state;
-        printf("total path exit: %d\n", depth_diff + exit_path_size);
+        if(ctx->current_state == ctx->next_state)
+        {
+            exit_path_size = 1;
+            entry_path_size = 1;
+            depth_diff = 0;
+            entry_path[0] = ctx->next_state;
+        }
+        else
+        {
+            find_LCA(temp_state, ctx->next_state, &entry_path, &entry_path_size, &exit_path_size);
+            depth_diff = ctx->current_state->depth - temp_state->depth;
+            temp_state = ctx->current_state;
+            printf("total path exit: %d\n", depth_diff + exit_path_size);
+        }
         for(uint8_t ctr = 0; ctr < depth_diff + exit_path_size; ctr++)
         {
             temp_state->fun(ctx, &exit_evt);
             temp_state = temp_state->parent;
         }
-        for(uint8_t ctr = entry_path_size-1; ctr != 0; ctr--)
+        for(uint8_t ctr = entry_path_size; ctr != 0; ctr--)
         {
-            entry_path[ctr]->fun(ctx, &entry_evt);
+            entry_path[ctr-1]->fun(ctx, &entry_evt);
         }
         ctx->current_state = ctx->next_state;
-        ctx->current_state->fun(ctx, &entry_evt);
     }
 }
 
