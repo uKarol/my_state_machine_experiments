@@ -470,4 +470,38 @@ void test_Test06_StateProcessing_Transition_A111_to_A2(void)
     TEST_ASSERT_EQUAL_PTR(&A2, test_machine.current_state);
 }
 
+StateRetVal Test07IgnoredCallback(MyStateMachine_t *ctx,FsmEvent_t *evt, int cmock_num_calls)
+{
+    TEST_ASSERT_EQUAL(EVT2, evt->user_event);
+    return STATE_IGNORED;
+}
+
+/*
+    Test07 - state machine in state A2 - event is not handled by any state
+    No state transition
+    Expected sequence:
+    A2 - returns state ignored
+    A - returns state ignored
+    ROOT - returns state ignored
+    state machine remains in A2 state
+*/
+void test_Test07_StateProcessing_IgnoredEvent(void)
+{
+    A2_State_AddCallback(Test07IgnoredCallback);
+    A2_State_ExpectAndReturn(&test_machine, NULL, STATE_IGNORED);
+    A2_State_IgnoreArg_evt();
+
+    A_State_AddCallback(Test07IgnoredCallback);
+    A_State_ExpectAndReturn(&test_machine, NULL, STATE_IGNORED);
+    A_State_IgnoreArg_evt();
+
+    ROOT_State_AddCallback(Test07IgnoredCallback);
+    ROOT_State_ExpectAndReturn(&test_machine, NULL, STATE_IGNORED);
+    ROOT_State_IgnoreArg_evt();
+
+    FsmEvent_t test_evt = {EVT2, NULL};
+    StateMachine_ProcessEvent(&test_machine, &test_evt);
+    TEST_ASSERT_EQUAL_PTR(&A2, test_machine.current_state);
+}
+
 #endif // TEST
