@@ -33,6 +33,7 @@ static uint8_t CalculateDepth(MyState_t *state)
     {
         ret_val++;
         state = state->parent;
+        if(ret_val > MAX_DEPTH) break;
     }
     return ret_val;
 }
@@ -83,7 +84,7 @@ void StateMachine_ProcessEvent(MyStateMachine_t *ctx, FsmEvent_t *evt)
     while(state_ret == STATE_IGNORED)
     {
         temp_state = temp_state->parent;
-        if(temp_state == NULL) return; // it's an error
+        if(temp_state == NULL) return;
         state_ret = temp_state->fun(ctx, evt);
     }
 
