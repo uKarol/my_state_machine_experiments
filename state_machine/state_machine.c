@@ -6,7 +6,7 @@
  */
 
 #include "state_machine.h"
-#include <stdlib.h>
+#include <stddef.h>
 
 static uint8_t CalculateDepth(MyState_t *state);
 
@@ -87,8 +87,10 @@ void StateMachine_ProcessEvent(MyStateMachine_t *ctx, FsmEvent_t *evt)
         state_ret = temp_state->fun(ctx, evt);
     }
 
+    // handle transition case
     if(state_ret == STATE_TRANSITION)
     {
+        // self-transition
         if(ctx->current_state == ctx->next_state)
         {
             exit_path_size = 1;
@@ -99,15 +101,16 @@ void StateMachine_ProcessEvent(MyStateMachine_t *ctx, FsmEvent_t *evt)
         else
         {
             find_LCA(temp_state, ctx->next_state, &entry_path, &entry_path_size, &exit_path_size);
-            depth_diff = ctx->current_state->depth - temp_state->depth;
-            temp_state = ctx->current_state;
-            printf("total path exit: %d\n", depth_diff + exit_path_size);
+            depth_diff = ctx->current_state->depth - temp_state->depth; // transition may start from any level of hierarchy - at this point temp_state contains pointer to state which triggers state transition - it may not be leaf state
+            temp_state = ctx->current_state; // prepare for state exiting - start from currently active leaf state
         }
+        // perform exit - starting from leaf state, finish at last common ancestor but withou exiting this
         for(uint8_t ctr = 0; ctr < depth_diff + exit_path_size; ctr++)
         {
             temp_state->fun(ctx, &exit_evt);
             temp_state = temp_state->parent;
         }
+        // perform entry - start from child of LCA
         for(uint8_t ctr = entry_path_size; ctr != 0; ctr--)
         {
             entry_path[ctr-1]->fun(ctx, &entry_evt);
